@@ -1,0 +1,37 @@
+﻿@page "/CreateProduct"
+@using ProductCatalog.Data
+@using ProductCatalog.Services
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@inject ProductService productService
+@inject NavigationManager NavigationManager
+
+<TelerikForm Model="@Product">
+        <FormValidation>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </FormValidation>
+        <FormItems>
+                <FormItem Field="@nameof(ProductDto.Displayname)"></FormItem>
+                <FormItem Field="@nameof(ProductDto.Brand)"></FormItem>
+                <FormItem Field="@nameof(ProductDto.Price)"></FormItem>
+                <FormItem Field="@nameof(ProductDto.Category)"></FormItem>
+        </FormItems>
+        <FormButtons>
+                <TelerikButton ButtonType="ButtonType.Button" ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)" OnClick="@CreateNewProduct">Save</TelerikButton>
+                <TelerikButton ButtonType="ButtonType.Button" OnClick="@Cancel">Cancel</TelerikButton>
+        </FormButtons>
+</TelerikForm>
+
+@code {
+    ProductDto Product = new ProductDto();
+
+    protected void CreateNewProduct()
+    {
+        productService.Create(Product);
+        NavigationManager.NavigateTo("Product");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Product");
+    }
+}

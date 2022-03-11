@@ -1,0 +1,65 @@
+﻿@page "/product"
+@using ProductCatalog.Data
+@using ProductCatalog.Services
+@inject ProductService productService
+
+<NavLink class="nav-link" href="CreateProduct">
+    <span class="oi oi-plus" aria-hidden="true">
+        Add new
+    </span>
+</NavLink>
+
+
+<h1>Product Information</h1>
+@if(Products == null)
+{
+    <p><em>Loading</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product Id</th>
+                <th>Displayname</th>
+                <th>Creation Date</th>
+                <th>Last Update Date</th>
+                <th>Active</th>
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Categories</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var prod in Products)
+            {
+                <tr>
+                    <td>@prod.Id</td>
+                    <td>@prod.Displayname</td>
+                    <td>@prod.CreationDate</td>
+                    <td>@prod.LastUpdateDate</td>
+                    <td>@prod.Active</td>
+                    <td>@prod.Brand</td>
+                    <td>@prod.Price</td>
+                    <td>@prod.Category</td>
+                    <td>
+                        <a class="nav-link" href="EditProduct/@prod.Id">
+                            <span class="oi oi-pencil" aria-hidden="true"></span>Edit
+                        </a>
+                         <a class="nav-link" href="DeleteProduct/@prod.Id">
+                            <span class="oi oi-trash" aria-hidden="true"></span>Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<ProductDto> Products;
+    protected override async Task OnInitializedAsync()
+    {
+        Products = await Task.Run(() => productService.GetProducts());
+    }
+}

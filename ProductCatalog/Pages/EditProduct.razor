@@ -1,0 +1,67 @@
+﻿@page "/EditProduct/{CurrentId}"
+@using ProductCatalog.Data
+@using ProductCatalog.Services
+@inject ProductService productService
+@inject NavigationManager NavigationManager
+
+
+<h3>CreateProduct</h3>
+<hr />
+
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="Displayname" class="control-label" >DisplayName</label>
+                <input form="Displayname" class="form-control" @bind="product.Displayname" />
+            </div>
+
+            <div class="form-group">
+                <label for="Brand" class="control-label">Brand</label>
+                <input form="Brand" class="form-control" @bind="product.Brand" />
+            </div>
+
+            <div class="form-group">
+                <label for="Price" class="control-label">Price</label>
+                <input form="Price" class="form-control" @bind="product.Price" />
+            </div>
+
+            <div class="form-label">
+                <label for="Category" class="control-label">Category</label>
+                <input form="Category" class="form-control" @bind="product.Category" />
+            </div>
+        </div>
+        <hr />
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@UpdateProduct" value="Save" />
+                <input type="button" class="btn btn-primary" @onclick="@Cancel" value="Cancel" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+    [Parameter]
+    public string CurrentId { get; set; }
+
+    ProductDto product = new ProductDto();
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await Task.Run(() => productService.GetProductById(CurrentId));
+    }
+
+    protected void UpdateProduct()
+    {
+        productService.UpdateProduct(product);
+        NavigationManager.NavigateTo("Product");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Product");
+    }
+}
