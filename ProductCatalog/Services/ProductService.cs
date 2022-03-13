@@ -72,7 +72,7 @@ namespace ProductCatalog.Services
             };
         }
 
-        public string Create(ProductDto productDto)
+        public string CreateProduct(ProductDto productDto)
         {
             Guid id = Guid.NewGuid();
 
@@ -121,9 +121,9 @@ namespace ProductCatalog.Services
             }
         }
 
-        public string DeleteProduct(Guid id)
+        public string DeleteProduct(ProductDto productDto)
         {
-            var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+            var product = _dbContext.Products.FirstOrDefault(p => p.Id == productDto.Id);
             if (product is null)
                 return "Product not found";
 

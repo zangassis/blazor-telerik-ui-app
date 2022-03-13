@@ -1,65 +1,110 @@
 ﻿@page "/product"
 @using ProductCatalog.Data
 @using ProductCatalog.Services
-@inject ProductService productService
-
-<NavLink class="nav-link" href="CreateProduct">
-    <span class="oi oi-plus" aria-hidden="true">
-        Add new
-    </span>
-</NavLink>
-
-
-<h1>Product Information</h1>
-@if(Products == null)
-{
-    <p><em>Loading</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Product Id</th>
-                <th>Displayname</th>
-                <th>Creation Date</th>
-                <th>Last Update Date</th>
-                <th>Active</th>
-                <th>Brand</th>
-                <th>Price</th>
-                <th>Categories</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach(var prod in Products)
-            {
-                <tr>
-                    <td>@prod.Id</td>
-                    <td>@prod.Displayname</td>
-                    <td>@prod.CreationDate</td>
-                    <td>@prod.LastUpdateDate</td>
-                    <td>@prod.Active</td>
-                    <td>@prod.Brand</td>
-                    <td>@prod.Price</td>
-                    <td>@prod.Category</td>
-                    <td>
-                        <a class="nav-link" href="EditProduct/@prod.Id">
-                            <span class="oi oi-pencil" aria-hidden="true"></span>Edit
-                        </a>
-                         <a class="nav-link" href="DeleteProduct/@prod.Id">
-                            <span class="oi oi-trash" aria-hidden="true"></span>Delete
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
+@using System.Data
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Telerik.DataSource
+@using Telerik.DataSource.Extensions
+@inject ProductService ProductService
+<TelerikGrid Data=@Products
+             OnUpdate="@UpdateHandler"
+             OnDelete="@DeleteHandler"
+             OnCreate="@CreateHandler"
+             ConfirmDelete="true"
+             Pageable="true"
+             Groupable="true"
+             Sortable="true"
+             FilterMode="GridFilterMode.FilterMenu"
+             Resizable="true"
+             Reorderable="true"
+             EditMode="GridEditMode.Popup"
+             SelectionMode="GridSelectionMode.Multiple"
+             OnStateInit="@((GridStateEventArgs<ProductDto> args) => OnStateInit(args))"
+             PageSize="10"
+             Navigable="true">
+    <GridColumns>
+        <GridCheckboxColumn></GridCheckboxColumn>
+        <GridColumn Field="@nameof(ProductDto.Displayname)" Title="Displayname" Width="195px" />
+        <GridColumn Field="@nameof(ProductDto.CreationDate)" Title="CreationDate" Width="200px" />
+        <GridColumn Field="@nameof(ProductDto.LastUpdateDate)" Title="Last Update Date" Width="200px" />
+        <GridColumn Field="@nameof(ProductDto.Active)" Title="Active" Width="200px" />
+        <GridColumn Field="@nameof(ProductDto.Brand)" Title="Brand" Width="200px" />
+        <GridColumn Field="@nameof(ProductDto.Price)" Width="120px" Title="Price" TextAlign="@ColumnTextAlign.Right">
+        </GridColumn>
+        <GridColumn Field="@nameof(ProductDto.Category)" Title="Category" Width="200px" />
+        <GridCommandColumn Width="190px">
+            <GridCommandButton Command="Save" Icon="save" ShowInEdit="true">Update</GridCommandButton>
+            <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+            <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+            <GridCommandButton Command="Cancel" Icon="cancel" ShowInEdit="true">Cancel</GridCommandButton>
+        </GridCommandColumn>
+    </GridColumns>
+    <GridToolBar>
+        <GridCommandButton Command="Add" Icon="add">Add Product</GridCommandButton>
+    </GridToolBar>
+</TelerikGrid>
 @code {
+
     List<ProductDto> Products;
-    protected override async Task OnInitializedAsync()
+
+    protected override void OnInitialized() => LoadProducts();
+
+    private void LoadProducts() =>
+        Products = ProductService.GetProducts().ToList();
+
+    private void OnStateInit(GridStateEventArgs<ProductDto> args)
     {
-        Products = await Task.Run(() => productService.GetProducts());
+        args.GridState.GroupDescriptors = new List<GroupDescriptor>()
+        {
+            new GroupDescriptor()
+            {
+                Member = nameof(ProductDto.Category),
+                MemberType = typeof(string)
+            }
+        };
     }
+
+    public void UpdateHandler(GridCommandEventArgs args)
+    {
+        var product = (ProductDto)args.Item;
+        ProductService.UpdateProduct(product);
+        LoadProducts();
+    }
+
+    public void DeleteHandler(GridCommandEventArgs args)
+    {
+        var product = (ProductDto)args.Item;
+        ProductService.DeleteProduct(product);
+        LoadProducts();
+    }
+
+    public void CreateHandler(GridCommandEventArgs args)
+    {
+        var product = (ProductDto)args.Item;
+        ProductService.CreateProduct(product);
+        LoadProducts();
+    }
+
+    public List<int?> GetFilterValues(CompositeFilterDescriptor filterDescriptor)
+    {
+        return filterDescriptor.FilterDescriptors.Select(f => (int?)(f as FilterDescriptor).Value).ToList();
+    }
+
+    public void ColumnValueChanged(bool value, int categoryId, CompositeFilterDescriptor filterDescriptor)
+    {
+        var filter = filterDescriptor.FilterDescriptors.FirstOrDefault(f => categoryId.Equals((f as FilterDescriptor).Value));
+
+        filterDescriptor.LogicalOperator = FilterCompositionLogicalOperator.Or;
+
+        if (value && filter == null)
+        {
+            filterDescriptor.FilterDescriptors.Add(new FilterDescriptor(nameof(ProductDto.Id), FilterOperator.IsEqualTo, categoryId));
+        }
+        else if (!value && filter != null)
+        {
+            filterDescriptor.FilterDescriptors.Remove(filter);
+        }
+    }
+
 }
