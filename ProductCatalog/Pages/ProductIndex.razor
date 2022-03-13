@@ -67,6 +67,13 @@
         };
     }
 
+    public void CreateHandler(GridCommandEventArgs args)
+    {
+        var product = (ProductDto)args.Item;
+        ProductService.CreateProduct(product);
+        LoadProducts();
+    }
+
     public void UpdateHandler(GridCommandEventArgs args)
     {
         var product = (ProductDto)args.Item;
@@ -81,17 +88,8 @@
         LoadProducts();
     }
 
-    public void CreateHandler(GridCommandEventArgs args)
-    {
-        var product = (ProductDto)args.Item;
-        ProductService.CreateProduct(product);
-        LoadProducts();
-    }
-
-    public List<int?> GetFilterValues(CompositeFilterDescriptor filterDescriptor)
-    {
-        return filterDescriptor.FilterDescriptors.Select(f => (int?)(f as FilterDescriptor).Value).ToList();
-    }
+    public List<int?> GetFilterValues(CompositeFilterDescriptor filterDescriptor) =>
+         filterDescriptor.FilterDescriptors.Select(f => (int?)(f as FilterDescriptor).Value).ToList();
 
     public void ColumnValueChanged(bool value, int categoryId, CompositeFilterDescriptor filterDescriptor)
     {
