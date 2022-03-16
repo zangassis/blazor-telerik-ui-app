@@ -1,18 +1,11 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ProductCatalog.Data;
 using ProductCatalog.Data.Context;
 using ProductCatalog.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ProductCatalog
 {
@@ -32,10 +25,6 @@ namespace ProductCatalog
             services.AddTelerikBlazor();
             services.AddRazorPages();
             services.AddServerSideBlazor();
-
-            //Connection String
-            string mySqlConnection = Configuration.GetConnectionString("DefaultConnection");
-
             services.AddDbContext<ApplicationDbContext>();
             services.AddScoped<ProductService>();
         }
@@ -57,7 +46,6 @@ namespace ProductCatalog
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
             app.UseRouting();
 

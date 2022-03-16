@@ -21,11 +21,9 @@ namespace ProductCatalog.Data
         [Required(ErrorMessage = "You must specify the Brand.")]
         public string Brand { get; set; }
 
-
         [Display(Name = "Price*:")]
         [Required(ErrorMessage = "You must specify the Price.")]
         public double Price { get; set; }
-
 
         [Display(Name = "Category*:")]
         [Required(ErrorMessage = "You must specify the Category.")]
